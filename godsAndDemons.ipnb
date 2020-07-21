@@ -1,0 +1,1313 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "# Gods, demons, and mortals\n",
+    "Inspired by Raymond Smullyan's \"Gods, fter deamons, and mortals\" puzzles from *To Mock a Mockingbird, and other logic puzzles*. These puzzles are similar to the familiar \"knights and knave\" puzzles.\n",
+    "> Shortly after Inspector Craig returned to London from his strange experience in Subterranea, he had a curious dream... Craig dreamed he spent nine days in a region in which dwelled gods, deamons and mortals. The gods of course, always told the truth, and the demons always lied. As to the mortals half were knights and half were knaves. As usual, the knights told the truth and the knaves lied."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 1,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "#there are 4 kinds of inhabitants: gods, knights, knaves and demons\n",
+    "options = ['god', 'knight', 'knave', 'demon']\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 2,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "mortals = ['knight','knave']\n",
+    "truthfuls =['god','knight']"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 3,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "[['god', 'god'], ['god', 'knight'], ['god', 'knave'], ['god', 'demon'], ['knight', 'god'], ['knight', 'knight'], ['knight', 'knave'], ['knight', 'demon'], ['knave', 'god'], ['knave', 'knight'], ['knave', 'knave'], ['knave', 'demon'], ['demon', 'god'], ['demon', 'knight'], ['demon', 'knave'], ['demon', 'demon']]\n"
+     ]
+    }
+   ],
+   "source": [
+    "#let's have puzzles involving pairs of inhabitants - there are 16 possible pairs\n",
+    "pairs = []\n",
+    "for i in options:\n",
+    "    for j in options:\n",
+    "        pairs.append([i,j])\n",
+    "print(pairs)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 4,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "#lets figure out all the way 'A' could be lying, and all the ways 'B' could be lying\n",
+    "aLying = []\n",
+    "bLying = []\n",
+    "for i in options:\n",
+    "    aLying.append(['demon',i])\n",
+    "    aLying.append(['knave',i])\n",
+    "    bLying.append([i,'demon'])\n",
+    "    bLying.append([i,'knave'])"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 5,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "#let's have a function that creates the sets of pairs based on two lists\n",
+    "def fromLists(a,b):\n",
+    "    res = []\n",
+    "    for i in a:\n",
+    "        for j in b:\n",
+    "            res.append([i,j])\n",
+    "    return res"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 6,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# return the list that is the intersection of two lists\n",
+    "def intersect(a, b):\n",
+    "    return [item for item in a if item in b]\n",
+    "    \n",
+    "# return the list that is the union of two lists\n",
+    "def union(a, b):\n",
+    "    return list(a) + [item for item in b if item not in a]\n",
+    "\n",
+    "# return the list that is the complement of two lists (based on the big list of pairs)\n",
+    "def complement(a):\n",
+    "    return [item for item in pairs if item not in a]\n",
+    "\n",
+    "# return list a - list b\n",
+    "def difference(a,b):\n",
+    "    return [item for item in a if item not in b]"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 7,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "['god', 'demon']\n"
+     ]
+    }
+   ],
+   "source": [
+    "# now from mortals, we can define the immortals\n",
+    "immortals = difference(options,mortals)\n",
+    "print(immortals)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 8,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "['knave', 'demon']\n"
+     ]
+    }
+   ],
+   "source": [
+    "# and from the truth tellers, we can find the liars\n",
+    "liars = difference(options, truthfuls)\n",
+    "print(liars)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 9,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "['god', 'knight']\n",
+      "['knight', 'knave']\n"
+     ]
+    }
+   ],
+   "source": [
+    "# we introduce the idea of 'sides' and of 'dimensions'\n",
+    "def sameSide(x):\n",
+    "    if (x == 'god' or x=='knight'):\n",
+    "        return truthfuls\n",
+    "    return liars\n",
+    "print(sameSide('god'))\n",
+    "\n",
+    "def sameDimension(x):\n",
+    "    if (x=='god' or x== 'demon'):\n",
+    "        return immortals\n",
+    "    return mortals\n",
+    "print(sameDimension('knight'))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 10,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "aTruthing = complement(aLying)\n",
+    "bTruthing = complement(bLying)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 11,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# aX(value) returns all pairs where 'A' is value\n",
+    "def aX(value):\n",
+    "    res = []\n",
+    "    for i in options:\n",
+    "        res.append([value, i])\n",
+    "    return res\n",
+    "\n",
+    "#bX(value) returns all pairs where 'B' is value\n",
+    "def bX(value):\n",
+    "    res=[]\n",
+    "    for i in options:\n",
+    "        res.append([i,value])\n",
+    "    return res"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "The code below constructs the situation where A says 'I am a knave'.\n",
+    "1. A could be telling the truth: aTruths is the intersection of all cases of A being a knave with A telling the truth. (should be empty)\n",
+    "2. A could be lying. aLies is the intersection of all cases of A not being a knave and A lying.\n",
+    "\n",
+    "Turns out, A must be a demon."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 12,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "[]\n",
+      "[['demon', 'god'], ['demon', 'knight'], ['demon', 'knave'], ['demon', 'demon']]\n"
+     ]
+    }
+   ],
+   "source": [
+    "aTruths = intersect(aX('knave'),aTruthing)\n",
+    "aLies = intersect(complement(aX('knave')),aLying)\n",
+    "result1 = union(aLies, aTruths)\n",
+    "print(aTruths)\n",
+    "print(result1)\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "The code below constructs the situation where B says 'we are both demons'"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 13,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "[]\n",
+      "[['god', 'knave'], ['god', 'demon'], ['knight', 'knave'], ['knight', 'demon'], ['knave', 'knave'], ['knave', 'demon'], ['demon', 'knave']]\n"
+     ]
+    }
+   ],
+   "source": [
+    "bothDemons =[['demon','demon']]\n",
+    "bTruths = intersect(bothDemons, bTruthing)\n",
+    "bLies = intersect(complement(bothDemons), bLying)\n",
+    "result2 = union(bTruths,bLies)\n",
+    "print(bTruths)\n",
+    "print(result2)                               "
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 14,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "[['demon', 'knave']]\n"
+     ]
+    }
+   ],
+   "source": [
+    "print(intersect(result1,result2))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 15,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Let's have functions that create the states of affairs arising from A's statements, B's statements, \n",
+    "# and then the solution must be in the intersection of the two.\n",
+    "\n",
+    "def aPossible(aStatement):\n",
+    "    aTruths = intersect(aStatement, aTruthing)\n",
+    "    aLies = intersect(complement(aStatement),aLying)\n",
+    "    return union(aTruths, aLies)\n",
+    "\n",
+    "def bPossible(bStatement): \n",
+    "    bTruths = intersect(bStatement, bTruthing)\n",
+    "    bLies = intersect(complement(bStatement),bLying)\n",
+    "    return union(bTruths, bLies)\n",
+    "\n",
+    "def solutions(aStatement, bStatement):\n",
+    "    return intersect(aPossible(aStatement),bPossible(bStatement))\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Some possible puzzle scenarios"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 16,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "[['demon', 'knave']]"
+      ]
+     },
+     "execution_count": 16,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "# A says they are a knave, and B says they are both demons\n",
+    "solutions(aX('knave'),[['demon','demon']])"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 17,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "[['god', 'knave'], ['god', 'demon'], ['knight', 'knave'], ['knight', 'demon']]"
+      ]
+     },
+     "execution_count": 17,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "# A says they are both demons, and B says they are both demons\n",
+    "solutions(complement(['demon','demon']),[['demon','demon']])"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 18,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "[['knave', 'knight']]"
+      ]
+     },
+     "execution_count": 18,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "# A says 'I am a demon' B says 'I am not a god'\n",
+    "solutions(aX('demon'),complement(bX('god')))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 19,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "[['god', 'demon'], ['knave', 'demon'], ['demon', 'knave'], ['demon', 'demon']]"
+      ]
+     },
+     "execution_count": 19,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "solutions([['god','demon']],[['knave','knave']])"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Some possible puzzle sets"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 20,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "{'statement': 'I am a demon',\n",
+       " 'type': 'demon',\n",
+       " 'pairs': [['demon', 'god'],\n",
+       "  ['demon', 'knight'],\n",
+       "  ['demon', 'knave'],\n",
+       "  ['demon', 'demon']]}"
+      ]
+     },
+     "execution_count": 20,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "# let's define some functions and structures to bring statements together with lists of pairs from those statements\n",
+    "def positiveStatement(option, sets):\n",
+    "    return {\"statement\":\"I am a \" + option, \"type\":option, \"pairs\": sets}\n",
+    "def negativeStatement(option, sets):\n",
+    "    return {\"statement\":\"I am not a \" + option,\"type\": option, \"pairs\": sets}\n",
+    "positiveStatement('demon', aX('demon'))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 21,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "[{'statement': 'I am a god', 'type': 'god', 'pairs': [['god', 'god'], ['god', 'knight'], ['god', 'knave'], ['god', 'demon']]}, {'statement': 'I am not a god', 'type': 'god', 'pairs': [['knight', 'god'], ['knight', 'knight'], ['knight', 'knave'], ['knight', 'demon'], ['knave', 'god'], ['knave', 'knight'], ['knave', 'knave'], ['knave', 'demon'], ['demon', 'god'], ['demon', 'knight'], ['demon', 'knave'], ['demon', 'demon']]}, {'statement': 'I am a knight', 'type': 'knight', 'pairs': [['knight', 'god'], ['knight', 'knight'], ['knight', 'knave'], ['knight', 'demon']]}, {'statement': 'I am not a knight', 'type': 'knight', 'pairs': [['god', 'god'], ['god', 'knight'], ['god', 'knave'], ['god', 'demon'], ['knave', 'god'], ['knave', 'knight'], ['knave', 'knave'], ['knave', 'demon'], ['demon', 'god'], ['demon', 'knight'], ['demon', 'knave'], ['demon', 'demon']]}, {'statement': 'I am a knave', 'type': 'knave', 'pairs': [['knave', 'god'], ['knave', 'knight'], ['knave', 'knave'], ['knave', 'demon']]}, {'statement': 'I am not a knave', 'type': 'knave', 'pairs': [['god', 'god'], ['god', 'knight'], ['god', 'knave'], ['god', 'demon'], ['knight', 'god'], ['knight', 'knight'], ['knight', 'knave'], ['knight', 'demon'], ['demon', 'god'], ['demon', 'knight'], ['demon', 'knave'], ['demon', 'demon']]}, {'statement': 'I am a demon', 'type': 'demon', 'pairs': [['demon', 'god'], ['demon', 'knight'], ['demon', 'knave'], ['demon', 'demon']]}, {'statement': 'I am not a demon', 'type': 'demon', 'pairs': [['god', 'god'], ['god', 'knight'], ['god', 'knave'], ['god', 'demon'], ['knight', 'god'], ['knight', 'knight'], ['knight', 'knave'], ['knight', 'demon'], ['knave', 'god'], ['knave', 'knight'], ['knave', 'knave'], ['knave', 'demon']]}]\n"
+     ]
+    }
+   ],
+   "source": [
+    "# let's generate a whole bunch of simple statements\n",
+    "aStatements = []\n",
+    "bStatements = []\n",
+    "for i in options:\n",
+    "    aStatements.append(positiveStatement(i,aX(i)))\n",
+    "    aStatements.append(negativeStatement(i,complement(aX(i))))\n",
+    "    bStatements.append(positiveStatement(i,bX(i)))\n",
+    "    bStatements.append(negativeStatement(i,complement(bX(i))))\n",
+    "print(aStatements)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 22,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "puzzle: 1\n",
+      "A says: I am not a god, B says: I am not a god\n",
+      "The solution is that A is a knight and B is a knight\n",
+      "----------------------------------------------------------\n",
+      "puzzle: 2\n",
+      "A says: I am not a god, B says: I am not a knight\n",
+      "The solution is that A is a knight and B is a god\n",
+      "----------------------------------------------------------\n",
+      "puzzle: 3\n",
+      "A says: I am not a god, B says: I am a knave\n",
+      "The solution is that A is a knight and B is a demon\n",
+      "----------------------------------------------------------\n",
+      "puzzle: 4\n",
+      "A says: I am not a god, B says: I am a demon\n",
+      "The solution is that A is a knight and B is a knave\n",
+      "----------------------------------------------------------\n",
+      "puzzle: 5\n",
+      "A says: I am not a knight, B says: I am not a god\n",
+      "The solution is that A is a god and B is a knight\n",
+      "----------------------------------------------------------\n",
+      "puzzle: 6\n",
+      "A says: I am not a knight, B says: I am not a knight\n",
+      "The solution is that A is a god and B is a god\n",
+      "----------------------------------------------------------\n",
+      "puzzle: 7\n",
+      "A says: I am not a knight, B says: I am a knave\n",
+      "The solution is that A is a god and B is a demon\n",
+      "----------------------------------------------------------\n",
+      "puzzle: 8\n",
+      "A says: I am not a knight, B says: I am a demon\n",
+      "The solution is that A is a god and B is a knave\n",
+      "----------------------------------------------------------\n",
+      "puzzle: 9\n",
+      "A says: I am a knave, B says: I am not a god\n",
+      "The solution is that A is a demon and B is a knight\n",
+      "----------------------------------------------------------\n",
+      "puzzle: 10\n",
+      "A says: I am a knave, B says: I am not a knight\n",
+      "The solution is that A is a demon and B is a god\n",
+      "----------------------------------------------------------\n",
+      "puzzle: 11\n",
+      "A says: I am a knave, B says: I am a knave\n",
+      "The solution is that A is a demon and B is a demon\n",
+      "----------------------------------------------------------\n",
+      "puzzle: 12\n",
+      "A says: I am a knave, B says: I am a demon\n",
+      "The solution is that A is a demon and B is a knave\n",
+      "----------------------------------------------------------\n",
+      "puzzle: 13\n",
+      "A says: I am a demon, B says: I am not a god\n",
+      "The solution is that A is a knave and B is a knight\n",
+      "----------------------------------------------------------\n",
+      "puzzle: 14\n",
+      "A says: I am a demon, B says: I am not a knight\n",
+      "The solution is that A is a knave and B is a god\n",
+      "----------------------------------------------------------\n",
+      "puzzle: 15\n",
+      "A says: I am a demon, B says: I am a knave\n",
+      "The solution is that A is a knave and B is a demon\n",
+      "----------------------------------------------------------\n",
+      "puzzle: 16\n",
+      "A says: I am a demon, B says: I am a demon\n",
+      "The solution is that A is a knave and B is a knave\n",
+      "----------------------------------------------------------\n"
+     ]
+    }
+   ],
+   "source": [
+    "def runAllStatements():\n",
+    "    counter = 1\n",
+    "    for a in aStatements:\n",
+    "        for b in bStatements:\n",
+    "            s = solutions(a[\"pairs\"], b[\"pairs\"])\n",
+    "            if (len(s) == 1):\n",
+    "                print(\"puzzle: \" + str(counter))\n",
+    "                counter = counter + 1\n",
+    "                print(\"A says: \" + a[\"statement\"] + \", B says: \" + b[\"statement\"])\n",
+    "                print(\"The solution is that A is a \"+ s[0][0] + \" and B is a \" + s[0][1])\n",
+    "                print(\"----------------------------------------------------------\")\n",
+    "runAllStatements()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## More possible sets"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 23,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "[{'statement': 'I am a god', 'type': 'god', 'pairs': [['god', 'god'], ['god', 'knight'], ['god', 'knave'], ['god', 'demon']]}, {'statement': 'I am not a god', 'type': 'god', 'pairs': [['knight', 'god'], ['knight', 'knight'], ['knight', 'knave'], ['knight', 'demon'], ['knave', 'god'], ['knave', 'knight'], ['knave', 'knave'], ['knave', 'demon'], ['demon', 'god'], ['demon', 'knight'], ['demon', 'knave'], ['demon', 'demon']]}, {'statement': 'I am a knight', 'type': 'knight', 'pairs': [['knight', 'god'], ['knight', 'knight'], ['knight', 'knave'], ['knight', 'demon']]}, {'statement': 'I am not a knight', 'type': 'knight', 'pairs': [['god', 'god'], ['god', 'knight'], ['god', 'knave'], ['god', 'demon'], ['knave', 'god'], ['knave', 'knight'], ['knave', 'knave'], ['knave', 'demon'], ['demon', 'god'], ['demon', 'knight'], ['demon', 'knave'], ['demon', 'demon']]}, {'statement': 'I am a knave', 'type': 'knave', 'pairs': [['knave', 'god'], ['knave', 'knight'], ['knave', 'knave'], ['knave', 'demon']]}, {'statement': 'I am not a knave', 'type': 'knave', 'pairs': [['god', 'god'], ['god', 'knight'], ['god', 'knave'], ['god', 'demon'], ['knight', 'god'], ['knight', 'knight'], ['knight', 'knave'], ['knight', 'demon'], ['demon', 'god'], ['demon', 'knight'], ['demon', 'knave'], ['demon', 'demon']]}, {'statement': 'I am a demon', 'type': 'demon', 'pairs': [['demon', 'god'], ['demon', 'knight'], ['demon', 'knave'], ['demon', 'demon']]}, {'statement': 'I am not a demon', 'type': 'demon', 'pairs': [['god', 'god'], ['god', 'knight'], ['god', 'knave'], ['god', 'demon'], ['knight', 'god'], ['knight', 'knight'], ['knight', 'knave'], ['knight', 'demon'], ['knave', 'god'], ['knave', 'knight'], ['knave', 'knave'], ['knave', 'demon']]}, {'statement': 'They are a god', 'type': 'god', 'pairs': [['god', 'god'], ['knight', 'god'], ['knave', 'god'], ['demon', 'god']]}, {'statement': 'They are not a god', 'type': 'god', 'pairs': [['god', 'knight'], ['god', 'knave'], ['god', 'demon'], ['knight', 'knight'], ['knight', 'knave'], ['knight', 'demon'], ['knave', 'knight'], ['knave', 'knave'], ['knave', 'demon'], ['demon', 'knight'], ['demon', 'knave'], ['demon', 'demon']]}, {'statement': 'They are a knight', 'type': 'knight', 'pairs': [['god', 'knight'], ['knight', 'knight'], ['knave', 'knight'], ['demon', 'knight']]}, {'statement': 'They are not a knight', 'type': 'knight', 'pairs': [['god', 'god'], ['god', 'knave'], ['god', 'demon'], ['knight', 'god'], ['knight', 'knave'], ['knight', 'demon'], ['knave', 'god'], ['knave', 'knave'], ['knave', 'demon'], ['demon', 'god'], ['demon', 'knave'], ['demon', 'demon']]}, {'statement': 'They are a knave', 'type': 'knave', 'pairs': [['god', 'knave'], ['knight', 'knave'], ['knave', 'knave'], ['demon', 'knave']]}, {'statement': 'They are not a knave', 'type': 'knave', 'pairs': [['god', 'god'], ['god', 'knight'], ['god', 'demon'], ['knight', 'god'], ['knight', 'knight'], ['knight', 'demon'], ['knave', 'god'], ['knave', 'knight'], ['knave', 'demon'], ['demon', 'god'], ['demon', 'knight'], ['demon', 'demon']]}, {'statement': 'They are a demon', 'type': 'demon', 'pairs': [['god', 'demon'], ['knight', 'demon'], ['knave', 'demon'], ['demon', 'demon']]}, {'statement': 'They are not a demon', 'type': 'demon', 'pairs': [['god', 'god'], ['god', 'knight'], ['god', 'knave'], ['knight', 'god'], ['knight', 'knight'], ['knight', 'knave'], ['knave', 'god'], ['knave', 'knight'], ['knave', 'knave'], ['demon', 'god'], ['demon', 'knight'], ['demon', 'knave']]}]\n"
+     ]
+    }
+   ],
+   "source": [
+    "def otherStatement(option, sets):\n",
+    "    return {\"statement\":\"They are a \" + option, \"type\":option, \"pairs\": sets}\n",
+    "\n",
+    "def otherNotStatement(option, sets):\n",
+    "    return {\"statement\":\"They are not a \" + option, \"type\":option, \"pairs\": sets}\n",
+    "\n",
+    "for i in options:\n",
+    "    aStatements.append(otherStatement(i,bX(i)))\n",
+    "    aStatements.append(otherNotStatement(i,complement(bX(i))))\n",
+    "    bStatements.append(otherStatement(i,aX(i)))\n",
+    "    bStatements.append(otherNotStatement(i,complement(aX(i))))\n",
+    "print(aStatements)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "runAllStatements()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 24,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "{'statement': 'I am immortal', 'type': 'immortal', 'pairs': [['god', 'god'], ['god', 'knight'], ['god', 'knave'], ['god', 'demon'], ['demon', 'god'], ['demon', 'knight'], ['demon', 'knave'], ['demon', 'demon']]}\n"
+     ]
+    }
+   ],
+   "source": [
+    "def sideStatement(side,sets ):\n",
+    "        return {\"statement\":\"I am \" + side, \"type\":side, \"pairs\": sets}\n",
+    "def weAreBoth(option,sets):\n",
+    "    return {\"statement\":\"We are both \" + option, \"type\":option, \"pairs\": sets}\n",
+    "\n",
+    "def iAmTheyAre(option1, option2, sets):\n",
+    "    return {\"statement\":\"I am a  \" + option1 + \" and they are a \" + option2, \"type\":option1, \"pairs\": sets}\n",
+    "print(sideStatement(\"immortal\",fromLists(immortals, options) ))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 25,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "puzzle: 1\n",
+      "A says: I am not a god, B says: I am not a god\n",
+      "The solution is that A is a knight and B is a knight\n",
+      "----------------------------------------------------------\n",
+      "puzzle: 2\n",
+      "A says: I am not a god, B says: I am not a knight\n",
+      "The solution is that A is a knight and B is a god\n",
+      "----------------------------------------------------------\n",
+      "puzzle: 3\n",
+      "A says: I am not a god, B says: I am a knave\n",
+      "The solution is that A is a knight and B is a demon\n",
+      "----------------------------------------------------------\n",
+      "puzzle: 4\n",
+      "A says: I am not a god, B says: I am a demon\n",
+      "The solution is that A is a knight and B is a knave\n",
+      "----------------------------------------------------------\n",
+      "puzzle: 5\n",
+      "A says: I am not a god, B says: I am a  knave and they are a knight\n",
+      "The solution is that A is a knight and B is a demon\n",
+      "----------------------------------------------------------\n",
+      "puzzle: 6\n",
+      "A says: I am not a god, B says: I am a  demon and they are a knight\n",
+      "The solution is that A is a knight and B is a knave\n",
+      "----------------------------------------------------------\n",
+      "puzzle: 7\n",
+      "A says: I am not a knight, B says: I am not a god\n",
+      "The solution is that A is a god and B is a knight\n",
+      "----------------------------------------------------------\n",
+      "puzzle: 8\n",
+      "A says: I am not a knight, B says: I am not a knight\n",
+      "The solution is that A is a god and B is a god\n",
+      "----------------------------------------------------------\n",
+      "puzzle: 9\n",
+      "A says: I am not a knight, B says: I am a knave\n",
+      "The solution is that A is a god and B is a demon\n",
+      "----------------------------------------------------------\n",
+      "puzzle: 10\n",
+      "A says: I am not a knight, B says: I am a demon\n",
+      "The solution is that A is a god and B is a knave\n",
+      "----------------------------------------------------------\n",
+      "puzzle: 11\n",
+      "A says: I am not a knight, B says: I am a  knave and they are a god\n",
+      "The solution is that A is a god and B is a demon\n",
+      "----------------------------------------------------------\n",
+      "puzzle: 12\n",
+      "A says: I am not a knight, B says: I am a  demon and they are a god\n",
+      "The solution is that A is a god and B is a knave\n",
+      "----------------------------------------------------------\n",
+      "puzzle: 13\n",
+      "A says: I am a knave, B says: I am not a god\n",
+      "The solution is that A is a demon and B is a knight\n",
+      "----------------------------------------------------------\n",
+      "puzzle: 14\n",
+      "A says: I am a knave, B says: I am not a knight\n",
+      "The solution is that A is a demon and B is a god\n",
+      "----------------------------------------------------------\n",
+      "puzzle: 15\n",
+      "A says: I am a knave, B says: I am a knave\n",
+      "The solution is that A is a demon and B is a demon\n",
+      "----------------------------------------------------------\n",
+      "puzzle: 16\n",
+      "A says: I am a knave, B says: I am a demon\n",
+      "The solution is that A is a demon and B is a knave\n",
+      "----------------------------------------------------------\n",
+      "puzzle: 17\n",
+      "A says: I am a knave, B says: We are both demons\n",
+      "The solution is that A is a demon and B is a knave\n",
+      "----------------------------------------------------------\n",
+      "puzzle: 18\n",
+      "A says: I am a knave, B says: I am a  knave and they are a demon\n",
+      "The solution is that A is a demon and B is a demon\n",
+      "----------------------------------------------------------\n",
+      "puzzle: 19\n",
+      "A says: I am a knave, B says: I am a  demon and they are a demon\n",
+      "The solution is that A is a demon and B is a knave\n",
+      "----------------------------------------------------------\n",
+      "puzzle: 20\n",
+      "A says: I am a demon, B says: I am not a god\n",
+      "The solution is that A is a knave and B is a knight\n",
+      "----------------------------------------------------------\n",
+      "puzzle: 21\n",
+      "A says: I am a demon, B says: I am not a knight\n",
+      "The solution is that A is a knave and B is a god\n",
+      "----------------------------------------------------------\n",
+      "puzzle: 22\n",
+      "A says: I am a demon, B says: I am a knave\n",
+      "The solution is that A is a knave and B is a demon\n",
+      "----------------------------------------------------------\n",
+      "puzzle: 23\n",
+      "A says: I am a demon, B says: I am a demon\n",
+      "The solution is that A is a knave and B is a knave\n",
+      "----------------------------------------------------------\n",
+      "puzzle: 24\n",
+      "A says: I am a demon, B says: We are both knaves\n",
+      "The solution is that A is a knave and B is a demon\n",
+      "----------------------------------------------------------\n",
+      "puzzle: 25\n",
+      "A says: I am a demon, B says: I am a  knave and they are a knave\n",
+      "The solution is that A is a knave and B is a demon\n",
+      "----------------------------------------------------------\n",
+      "puzzle: 26\n",
+      "A says: I am a demon, B says: I am a  demon and they are a knave\n",
+      "The solution is that A is a knave and B is a knave\n",
+      "----------------------------------------------------------\n",
+      "puzzle: 27\n",
+      "A says: We are both knaves, B says: I am a demon\n",
+      "The solution is that A is a demon and B is a knave\n",
+      "----------------------------------------------------------\n",
+      "puzzle: 28\n",
+      "A says: We are both demons, B says: I am a knave\n",
+      "The solution is that A is a knave and B is a demon\n",
+      "----------------------------------------------------------\n",
+      "puzzle: 29\n",
+      "A says: We are both liars, B says: I am a  god and they are a knave\n",
+      "The solution is that A is a knave and B is a god\n",
+      "----------------------------------------------------------\n",
+      "puzzle: 30\n",
+      "A says: We are both liars, B says: I am a  god and they are a demon\n",
+      "The solution is that A is a demon and B is a god\n",
+      "----------------------------------------------------------\n",
+      "puzzle: 31\n",
+      "A says: We are both liars, B says: I am a  knight and they are a knave\n",
+      "The solution is that A is a knave and B is a knight\n",
+      "----------------------------------------------------------\n",
+      "puzzle: 32\n",
+      "A says: We are both liars, B says: I am a  knight and they are a demon\n",
+      "The solution is that A is a demon and B is a knight\n",
+      "----------------------------------------------------------\n",
+      "puzzle: 33\n",
+      "A says: I am a  god and they are a knave, B says: We are both liars\n",
+      "The solution is that A is a god and B is a knave\n",
+      "----------------------------------------------------------\n",
+      "puzzle: 34\n",
+      "A says: I am a  god and they are a demon, B says: We are both liars\n",
+      "The solution is that A is a god and B is a demon\n",
+      "----------------------------------------------------------\n",
+      "puzzle: 35\n",
+      "A says: I am a  knight and they are a knave, B says: We are both liars\n",
+      "The solution is that A is a knight and B is a knave\n",
+      "----------------------------------------------------------\n",
+      "puzzle: 36\n",
+      "A says: I am a  knight and they are a demon, B says: We are both liars\n",
+      "The solution is that A is a knight and B is a demon\n",
+      "----------------------------------------------------------\n",
+      "puzzle: 37\n",
+      "A says: I am a  knave and they are a god, B says: I am not a knight\n",
+      "The solution is that A is a demon and B is a god\n",
+      "----------------------------------------------------------\n",
+      "puzzle: 38\n",
+      "A says: I am a  knave and they are a knight, B says: I am not a god\n",
+      "The solution is that A is a demon and B is a knight\n",
+      "----------------------------------------------------------\n",
+      "puzzle: 39\n",
+      "A says: I am a  knave and they are a knave, B says: I am a demon\n",
+      "The solution is that A is a demon and B is a knave\n",
+      "----------------------------------------------------------\n",
+      "puzzle: 40\n",
+      "A says: I am a  knave and they are a demon, B says: I am a knave\n",
+      "The solution is that A is a demon and B is a demon\n",
+      "----------------------------------------------------------\n",
+      "puzzle: 41\n",
+      "A says: I am a  demon and they are a god, B says: I am not a knight\n",
+      "The solution is that A is a knave and B is a god\n",
+      "----------------------------------------------------------\n",
+      "puzzle: 42\n",
+      "A says: I am a  demon and they are a knight, B says: I am not a god\n",
+      "The solution is that A is a knave and B is a knight\n",
+      "----------------------------------------------------------\n",
+      "puzzle: 43\n",
+      "A says: I am a  demon and they are a knave, B says: I am a demon\n",
+      "The solution is that A is a knave and B is a knave\n",
+      "----------------------------------------------------------\n",
+      "puzzle: 44\n",
+      "A says: I am a  demon and they are a demon, B says: I am a knave\n",
+      "The solution is that A is a knave and B is a demon\n",
+      "----------------------------------------------------------\n"
+     ]
+    }
+   ],
+   "source": [
+    "aStatements.append(sideStatement(\"immortal\", fromLists(immortals, options)))\n",
+    "aStatements.append(sideStatement(\"mortal\", fromLists(mortals, options)))\n",
+    "aStatements.append(sideStatement(\"truth-teller\", fromLists(truthfuls, options)))\n",
+    "aStatements.append(sideStatement(\"liar\", fromLists(liars, options)))\n",
+    "\n",
+    "bStatements.append(sideStatement(\"immortal\", fromLists(options, immortals)))\n",
+    "bStatements.append(sideStatement(\"mortal\", fromLists(options, mortals)))\n",
+    "bStatements.append(sideStatement(\"truth-teller\", fromLists(options, truthfuls)))\n",
+    "bStatements.append(sideStatement(\"liar\", fromLists(options, liars)))\n",
+    "\n",
+    "for i in options:\n",
+    "    aStatements.append(weAreBoth(i + \"s\", [[i,i]]))\n",
+    "    bStatements.append(weAreBoth(i + \"s\", [[i,i]]))\n",
+    "\n",
+    "aStatements.append(weAreBoth(\"liars\",fromLists(liars,liars)))\n",
+    "bStatements.append(weAreBoth(\"liars\",fromLists(liars,liars)))\n",
+    "\n",
+    "for i in options:\n",
+    "    for j in options:\n",
+    "        aStatements.append(iAmTheyAre(i,j,[[i,j]]))\n",
+    "        bStatements.append(iAmTheyAre(i,j,[[j,i]]))\n",
+    "\n",
+    "runAllStatements()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "Puzzle\n",
+    "- I am a knave and he is mortal\n",
+    "- I am a liar and he is immortal"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 26,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "[['knave', 'demon']]"
+      ]
+     },
+     "execution_count": 26,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "aset = fromLists(['knave'],mortals)\n",
+    "bset = fromLists(immortals,liars)\n",
+    "solutions(aset, bset)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 27,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "[['knave', 'demon']]"
+      ]
+     },
+     "execution_count": 27,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "aset = fromLists(liars,mortals)\n",
+    "bset = fromLists(immortals,['demon'])\n",
+    "solutions(aset, bset)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "SET 3 one to AND"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 28,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "A: I am a knave\n",
+      "B: I am a knave and A is a demon\n",
+      "[['demon', 'demon']]\n",
+      "-----------------\n",
+      "A: I am a knave\n",
+      "B: I am a demon and A is a demon\n",
+      "[['demon', 'knave']]\n",
+      "-----------------\n",
+      "A: I am a demon\n",
+      "B: I am a knave and A is a knave\n",
+      "[['knave', 'demon']]\n",
+      "-----------------\n",
+      "A: I am a demon\n",
+      "B: I am a demon and A is a knave\n",
+      "[['knave', 'knave']]\n",
+      "-----------------\n"
+     ]
+    }
+   ],
+   "source": [
+    "for ai in options:\n",
+    "    for bi in options:\n",
+    "        for bj in options:\n",
+    "            aStatement = aX(ai)\n",
+    "            bStatement = intersect(aX(bi),bX(bj))\n",
+    "            sol = solutions(aStatement,bStatement)\n",
+    "            if (len(sol)==1):\n",
+    "                print('A: I am a ' + ai)\n",
+    "                print('B: I am a ' + bj + ' and A is a ' + bi)\n",
+    "                print(sol)\n",
+    "                print(\"-----------------\")\n",
+    "                    "
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 29,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "A: I am a liar and B is a liar\n",
+      "B: I am a god and A is immortal\n",
+      "[['demon', 'god']]\n",
+      "-----------------\n",
+      "A: I am a liar and B is a liar\n",
+      "B: I am a knight and A is immortal\n",
+      "[['demon', 'knight']]\n",
+      "-----------------\n"
+     ]
+    }
+   ],
+   "source": [
+    "for bi in options:\n",
+    "    aStatement = fromLists(liars, liars)\n",
+    "    bStatement = intersect(fromLists(immortals,options),bX(bi))\n",
+    "    sol = solutions(aStatement,bStatement)\n",
+    "    if (len(sol)==1):\n",
+    "        print('A: I am a liar and B is a liar')\n",
+    "        print('B: I am a ' + bi + ' and A is immortal')\n",
+    "        print(sol)\n",
+    "        print(\"-----------------\")"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 30,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "A: I am a liar and B is a liar\n",
+      "B: I am a god and A is mortal\n",
+      "[['knave', 'god']]\n",
+      "-----------------\n",
+      "A: I am a liar and B is a liar\n",
+      "B: I am a knight and A is mortal\n",
+      "[['knave', 'knight']]\n",
+      "-----------------\n"
+     ]
+    }
+   ],
+   "source": [
+    "for bi in options:\n",
+    "    aStatement = fromLists(liars, liars)\n",
+    "    bStatement = intersect(fromLists(mortals,options),bX(bi))\n",
+    "    sol = solutions(aStatement,bStatement)\n",
+    "    if (len(sol)==1):\n",
+    "        print('A: I am a liar and B is a liar')\n",
+    "        print('B: I am a ' + bi + ' and A is mortal')\n",
+    "        print(sol)\n",
+    "        print(\"-----------------\")"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 31,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "A: I am a liar or B is a god\n",
+      "B: I am a god and A is a mortal\n",
+      "[['knight', 'god']]\n",
+      "-----------------\n"
+     ]
+    }
+   ],
+   "source": [
+    "for bi in options:\n",
+    "    aStatement = union(fromLists(liars, options),fromLists(options, ['god']))\n",
+    "    bStatement = fromLists(mortals, [bi])\n",
+    "    # print(aStatement)\n",
+    "    sol = solutions(aStatement,bStatement)\n",
+    "    if (len(sol)==1):\n",
+    "        print('A: I am a liar or B is a god')\n",
+    "        print('B: I am a ' + bi+ ' and A is a mortal')\n",
+    "        print(sol)\n",
+    "        print(\"-----------------\")"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 32,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "A: I am a knave or B is a god\n",
+      "B: I am a knave and A is immortal\n",
+      "[['demon', 'demon']]\n",
+      "-----------------\n",
+      "A: I am a knave or B is a god\n",
+      "B: I am a demon and A is immortal\n",
+      "[['demon', 'knave']]\n",
+      "-----------------\n"
+     ]
+    }
+   ],
+   "source": [
+    "for bi in options:\n",
+    "    aStatement = union(fromLists(['knave'], options),fromLists(options, ['god']))\n",
+    "    bStatement = fromLists(immortals, [bi])\n",
+    "    # print(aStatement)\n",
+    "    sol = solutions(aStatement,bStatement)\n",
+    "    if (len(sol)==1):\n",
+    "        print('A: I am a knave or B is a god')\n",
+    "        print('B: I am a ' + bi+ ' and A is immortal')\n",
+    "        print(sol)\n",
+    "        print(\"-----------------\")"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 33,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "A: I am a liar or B is a god\n",
+      "B: I am a god and A is god\n",
+      "[['god', 'god']]\n",
+      "-----------------\n",
+      "A: I am a liar or B is a god\n",
+      "B: I am a god and A is knight\n",
+      "[['knight', 'god']]\n",
+      "-----------------\n"
+     ]
+    }
+   ],
+   "source": [
+    "for ai in options:\n",
+    "    for bi in options:\n",
+    "        aStatement = union(fromLists(liars, options),fromLists(options, ['god']))\n",
+    "        bStatement = fromLists([ai], [bi])\n",
+    "        # print(aStatement)\n",
+    "        sol = solutions(aStatement,bStatement)\n",
+    "        if (len(sol)==1):\n",
+    "            print('A: I am a liar or B is a god')\n",
+    "            print('B: I am a ' + bi+ ' and A is '+ ai)\n",
+    "            print(sol)\n",
+    "            print(\"-----------------\")"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 34,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "sameDimension = [['demon','god'],['demon','demon'],['knave','knave'],['knave','knight'],['god','god'],['god','demon'],['kight','kight'],['knight','knave']]\n",
+    "sameSide = [['demon','demon'],['demon','knave'],['knave','demon'],['knave','knave'],['god','god'],['god','knight'],['knight','kight'],['kight','god']]"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 35,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "A: I am a knave and we are from the same side\n",
+      "B: I am a knave and we are from the same side\n",
+      "[['demon', 'knave']]\n"
+     ]
+    }
+   ],
+   "source": [
+    "aStatement = intersect(aX('knave'), sameSide)\n",
+    "bStatement = intersect(bX('demon'),sameSide)\n",
+    "sol = solutions(aStatement,bStatement)\n",
+    "if (len(sol)==1):\n",
+    "    print('A: I am a knave and we are from the same side')\n",
+    "    print('B: I am a knave and we are from the same side')\n",
+    "print(sol)\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 36,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "A: I am an knave and we are on the same side\n",
+      "B: I am an knave and we are on the same side\n",
+      "[['demon', 'demon']]\n",
+      "-----------------\n",
+      "A: I am an knave and we are on the same side\n",
+      "B: I am an demon and we are on the same side\n",
+      "[['demon', 'knave']]\n",
+      "-----------------\n",
+      "A: I am an demon and we are on the same side\n",
+      "B: I am an knave and we are on the same side\n",
+      "[['knave', 'demon']]\n",
+      "-----------------\n",
+      "A: I am an demon and we are on the same side\n",
+      "B: I am an demon and we are on the same side\n",
+      "[['knave', 'knave']]\n",
+      "-----------------\n"
+     ]
+    }
+   ],
+   "source": [
+    "for ai in options:\n",
+    "    for bi in options:\n",
+    "        aStatement = intersect(aX(ai), sameSide)\n",
+    "        bStatement = intersect(bX(bi),sameSide)\n",
+    "        # print(aStatement)\n",
+    "        sol = solutions(aStatement,bStatement)\n",
+    "        if (len(sol)==1):\n",
+    "            print('A: I am an ' + ai + ' and we are on the same side')\n",
+    "            print('B: I am an ' + bi + ' and we are on the same side')\n",
+    "            print(sol)\n",
+    "            print(\"-----------------\")"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 37,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "for ai in options:\n",
+    "    for bi in options:\n",
+    "        aStatement = aX(ai)\n",
+    "        bStatement = intersect(aX(bi),sameDimension)\n",
+    "        # print(aStatement)\n",
+    "        sol = solutions(aStatement,bStatement)\n",
+    "        if (len(sol)==1):\n",
+    "            print('A: I am an ' + ai)\n",
+    "            print('B: A is a ' + bi + ' and we are from the same dimension')\n",
+    "            print(sol)\n",
+    "            print(\"-----------------\")"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 38,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "A: I am a knave \n",
+      "B: I am a knave or we are from the same dimension\n",
+      "[['demon', 'god']]\n",
+      "-----------------\n"
+     ]
+    }
+   ],
+   "source": [
+    "aStatement = aX('knave')\n",
+    "bStatement = union(bX('knave'),sameDimension)\n",
+    "sol = solutions(aStatement,bStatement)\n",
+    "print('A: I am a knave ')\n",
+    "print('B: I am a knave or we are from the same dimension')\n",
+    "print(sol)\n",
+    "print(\"-----------------\")"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 39,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "A: I am an knave\n",
+      "B: we are both demon\n",
+      "[['demon', 'knave']]\n",
+      "-----------------\n",
+      "A: I am an demon\n",
+      "B: we are both knave\n",
+      "[['knave', 'demon']]\n",
+      "-----------------\n"
+     ]
+    }
+   ],
+   "source": [
+    "for ai in options:\n",
+    "    for bi in options:\n",
+    "        aStatement = aX(ai)\n",
+    "        bStatement = intersect(aX(bi),bX(bi))\n",
+    "        # print(aStatement)\n",
+    "        sol = solutions(aStatement,bStatement)\n",
+    "        if (len(sol)==1):\n",
+    "            print('A: I am an ' + ai)\n",
+    "            print('B: we are both ' + bi)\n",
+    "            print(sol)\n",
+    "            print(\"-----------------\")"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 40,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "for ai in options:\n",
+    "    for bi in options:\n",
+    "        aStatement = aX(ai)\n",
+    "        bStatement = sameSide\n",
+    "        # print(aStatement)\n",
+    "        sol = solutions(aStatement,bStatement)\n",
+    "        if (len(sol)==1):\n",
+    "            print('A: I am a ' + ai)\n",
+    "            print('B: we are on the same side')\n",
+    "            print(sol)\n",
+    "            print(\"-----------------\")"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "Python 3",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.6.9"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 2
+}
