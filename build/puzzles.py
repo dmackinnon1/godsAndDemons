@@ -8,7 +8,6 @@ pairs = []
 for i in options:
     for j in options:
         pairs.append([i,j])
-print(pairs)
 
 #lets figure out all the way 'A' could be lying, and all the ways 'B' could be lying
 
@@ -109,16 +108,37 @@ for i in options:
     bStatements.append(negativeStatement(i,complement(bX(i))))
 
 def runAllStatements():
-    counter = 1
-    for a in aStatements:
-        for b in bStatements:
-            s = solutions(a["pairs"], b["pairs"])
-            if (len(s) == 1):
-                print("puzzle: " + str(counter))
-                counter = counter + 1
-                print("A says: " + a["statement"] + ", B says: " + b["statement"])
-                print("The solution is that A is a "+ s[0][0] + " and B is a " + s[0][1])
-                print("----------------------------------------------------------")
+    puzzles = buildPuzzles()
+    for i in puzzles:
+    	print(i)
+    #counter = 1
+    #or a in aStatements:
+    #    for b in bStatements:
+    #        s = solutions(a["pairs"], b["pairs"])
+    #        if (len(s) == 1):
+    #            print("puzzle: " + str(counter))
+    #            counter = counter + 1
+    #            print("A says: " + a["statement"] + ", B says: " + b["statement"])
+    #            print("The solution is that A is a "+ s[0][0] + " and B is a " + s[0][1])
+    #            print("----------------------------------------------------------")
+
+
+def buildPuzzles():
+	counter = 1
+	puzzles = []
+	for a in aStatements:
+		for b in bStatements:
+			s = solutions(a["pairs"], b["pairs"])
+			if (len(s) == 1):
+				puzzle = {}
+				puzzle['id'] = str(counter)
+				counter = counter + 1
+				puzzle['statements'] = "A says: " + a["statement"] + ", B says: " + b["statement"]
+				puzzle['A'] =  a["statement"]
+				puzzle['B'] =  b["statement"]
+				puzzle['solution'] = "The solution is that A is a "+ s[0][0] + " and B is a " + s[0][1]
+				puzzles.append(puzzle)
+	return puzzles
 
 def otherStatement(option, sets):
     return {"statement":"They are a " + option, "type":option, "pairs": sets}
@@ -219,14 +239,32 @@ sameTypeStatement ={"statement":"We are the same type", "type":"same", "pairs":s
 aStatements.append(sameTypeStatement)
 bStatements.append(sameTypeStatement)
 
-runAllStatements()
+
+def jsonForPuzzle(p):
+    json = '{"statements":"' + p['statements'] + '",' 
+    json += '"A":"' + p['A'] + '",'
+    json += '"B":"' + p['B'] + '",'
+    json += '"id":"' + p['id'] + '",'
+    json += '"solution":"' + p['solution'] + '"'
+    json += "}"
+    return json
+
+puzzles = buildPuzzles()
+# write out the puzzles
+result = "["
+first = True
+for p in puzzles:
+    if not first:
+        result += ", \n"
+    else:
+        first = False
+    result += jsonForPuzzle(p)
+result += "]"
+print("There were " + str(len(puzzles)) + " puzzles generated")
+
+f = open("../data/godsAndDemons.json","w")
+f.write( result )
+f.close()
+
+#runAllStatements()
   
-
-
-
-
-
-
-
-
-
