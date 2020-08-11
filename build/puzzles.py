@@ -110,7 +110,7 @@ for i in options:
 def runAllStatements():
     puzzles = buildPuzzles()
     for i in puzzles:
-    	print(i)
+        print(i)
     #counter = 1
     #or a in aStatements:
     #    for b in bStatements:
@@ -124,21 +124,22 @@ def runAllStatements():
 
 
 def buildPuzzles():
-	counter = 1
-	puzzles = []
-	for a in aStatements:
-		for b in bStatements:
-			s = solutions(a["pairs"], b["pairs"])
-			if (len(s) == 1):
-				puzzle = {}
-				puzzle['id'] = str(counter)
-				counter = counter + 1
-				puzzle['statements'] = "A says: " + a["statement"] + ", B says: " + b["statement"]
-				puzzle['A'] =  a["statement"]
-				puzzle['B'] =  b["statement"]
-				puzzle['solution'] = "The solution is that A is a "+ s[0][0] + " and B is a " + s[0][1]
-				puzzles.append(puzzle)
-	return puzzles
+    counter = 1
+    puzzles = []
+    for a in aStatements:
+        for b in bStatements:
+            s = solutions(a["pairs"], b["pairs"])
+            if (len(s) == 1):
+                puzzle = {}
+                puzzle['id'] = str(counter)
+                counter = counter + 1
+                puzzle['statement_A'] =  a["statement"]
+                puzzle['statement_B'] =  b["statement"]
+                puzzle['A'] =  s[0][0]
+                puzzle['B'] =  s[0][1]                
+                puzzle['solution'] = "The solution is that A is a "+ s[0][0] + " and B is a " + s[0][1]
+                puzzles.append(puzzle)
+    return puzzles
 
 def otherStatement(option, sets):
     return {"statement":"They are a " + option, "type":option, "pairs": sets}
@@ -158,7 +159,7 @@ def weAreBoth(option,sets):
     return {"statement":"We are both " + option, "type":option, "pairs": sets}
 
 def iAmTheyAre(option1, option2, sets):
-    return {"statement":"I am a  " + option1 + " and they are a " + option2, "type":option1, "pairs": sets}
+    return {"statement":"I am " + option1 + " and they are " + option2, "type":option1, "pairs": sets}
 
 aStatements.append(sideStatement("immortal", fromLists(immortals, options)))
 aStatements.append(sideStatement("mortal", fromLists(mortals, options)))
@@ -186,16 +187,16 @@ bStatements.append(weAreBoth("immortal",fromLists(immortals,immortals)))
 aStatements.append(weAreBoth("mortals",fromLists(mortals,mortals)))
 bStatements.append(weAreBoth("mortals",fromLists(mortals,mortals)))
 
-aStatements.append(iAmTheyAre("mortal","immortal", fromLists(mortals,immortals)))
-bStatements.append(iAmTheyAre("mortal","immortal", fromLists(immortals,mortals)))
+aStatements.append(iAmTheyAre("a mortal","an immortal", fromLists(mortals,immortals)))
+bStatements.append(iAmTheyAre("a mortal","an immortal", fromLists(immortals,mortals)))
 
-aStatements.append(iAmTheyAre("liar","truth-teller", fromLists(liars,truthfuls)))
-bStatements.append(iAmTheyAre("liar","truth-teller", fromLists(truthfuls,liars)))
+aStatements.append(iAmTheyAre("a liar","a truth-teller", fromLists(liars,truthfuls)))
+bStatements.append(iAmTheyAre("a liar","a truth-teller", fromLists(truthfuls,liars)))
 
 for i in options:
     for j in options:        
-        aStatements.append(iAmTheyAre(i,j,[[i,j]]))
-        bStatements.append(iAmTheyAre(i,j,[[j,i]]))
+        aStatements.append(iAmTheyAre("a " + i,"a " + j,[[i,j]]))
+        bStatements.append(iAmTheyAre("a " + i,"a " + j,[[j,i]]))
 
 bothImmortal = fromLists(immortals,immortals)
 
@@ -213,23 +214,23 @@ aStatements.append(diffDimensionStatement)
 bStatements.append(diffDimensionStatement)
 
 def iAmORTheyAre(option1, option2, sets):
-    return {"statement":"I am a  " + option1 + " or they are a " + option2, "type":option1, "pairs": sets}
+    return {"statement":"I am " + option1 + " or they are "  + option2, "type":option1, "pairs": sets}
 
 for i in options:
     for j in options:        
-        aStatements.append(iAmORTheyAre(i,j, union(aX(i),bX(j))))
-        bStatements.append(iAmORTheyAre(i,j, union(aX(j),bX(i))))
+        aStatements.append(iAmORTheyAre("a " + i,"a " + j, union(aX(i),bX(j))))
+        bStatements.append(iAmORTheyAre("a " + i,"a " + j, union(aX(j),bX(i))))
 
 for i in options:
-    aStatements.append(iAmTheyAre(i, "mortal", fromLists([i],mortals)))
-    aStatements.append(iAmORTheyAre(i,"mortal", union(aX(i),fromLists(options,mortals))))
-    aStatements.append(iAmTheyAre(i, "immortal", fromLists([i],immortals)))
-    aStatements.append(iAmORTheyAre(i,"immortal", union(aX(i),fromLists(options,immortals))))
+    aStatements.append(iAmTheyAre("a " + i, "a mortal", fromLists([i],mortals)))
+    aStatements.append(iAmORTheyAre("a "+ i,"a mortal", union(aX(i),fromLists(options,mortals))))
+    aStatements.append(iAmTheyAre("a " + i, "an immortal", fromLists([i],immortals)))
+    aStatements.append(iAmORTheyAre("a " + i,"an immortal", union(aX(i),fromLists(options,immortals))))
     ##
-    bStatements.append(iAmTheyAre(i, "mortal", fromLists(mortals,[i])))
-    bStatements.append(iAmORTheyAre(i,"mortal", union(bX(i),fromLists(options,mortals))))
-    bStatements.append(iAmTheyAre(i, "immortal", fromLists(immortals,[i])))
-    bStatements.append(iAmORTheyAre(i,"immortal", union(bX(i),fromLists(options,immortals))))
+    bStatements.append(iAmTheyAre("a "+i, "a mortal", fromLists(mortals,[i])))
+    bStatements.append(iAmORTheyAre("a " + i, "a mortal", union(bX(i),fromLists(mortals,options))))
+    bStatements.append(iAmTheyAre("a " + i, "an immortal", fromLists(immortals,[i])))
+    bStatements.append(iAmORTheyAre("a " + i,"an immortal", union(bX(i),fromLists(immortals,options))))
 
     
 sameType = []
@@ -241,7 +242,8 @@ bStatements.append(sameTypeStatement)
 
 
 def jsonForPuzzle(p):
-    json = '{"statements":"' + p['statements'] + '",' 
+    json = '{"statement_A":"' + p['statement_A'] + '",' 
+    json += '"statement_B":"' + p['statement_B'] + '",'
     json += '"A":"' + p['A'] + '",'
     json += '"B":"' + p['B'] + '",'
     json += '"id":"' + p['id'] + '",'
