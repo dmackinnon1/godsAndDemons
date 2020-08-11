@@ -157,29 +157,13 @@ function reset() {
 	<div id='hintText' class='collapse'> <br>
 		<p class='puzzle-text'>
 		There are two types of statements - simple statements and compound statements.
-		Compound statements join two simple statements with an 'and' conjunction.
+		Compound statements join two simple statements with an 'and' or 'or' conjunction. If an inhabitant says "x or y", then to be a true statement, only one of x or y must to be true (both could be true) - both would need to be false for the inhabitant to be a liar. If an inhabitant says "x and y", then to be a true statement both x and y must be true - only one would need to be false for the inhabitant to be lying.
 		</p>
 		<p>
 		Some simple statements provide a lot of information.</p>
 		<p>
-		If an inhabitant simply says "it is day," then they must be a day-knight: day-knights
-		will say this during the day (being truthful), and will also say it at night (when lying). 
-		Night-knights can never simply say "it is day" (either truthfully, or when lying).
-		</p>
-		If an inhabitant says "I am a day-knight" and nothing else, then it must be day. A day-knight
-		will say this truthfully during the day, and a night-knight will also say this during the day, 
-		but as a lie. At night, no one makes a simple statement claiming to be a day-knight.
-		<p><br>
-		Beware, however: these simple rules do not apply when simple statements are combined into compound statements... but compound statements are also very helpful.
-		For example:
-		</p>
-		<p>
-		If an inhabitant says "I am a day-knight and it is night" they cannot be telling the truth. Moreover, you know
-		they cannot be a day-knight during the day, or a night-knight during the night (as then they would have to be
-		truthful): you can conclude that it is day and that they are a night-knight.
-		</p>
-		<p> If an inhabitant says "I am a day-knight and it is day" they may or may not be telling the truth, but you can
-		at least rule out the possibility that they are a night-knight at night.
+		If an inhabitant says "I am a demon", then they must by lying - no demon would say the truth. This means that they must be a knave.</p>
+		<p> If an inhabitant says "I am not a knight", they cannot be a god or demon, since this would be a truthful statement. Consequently, they must be a god.
 		</p>
 		You may be able to work out some other rules that will help you solve these puzzles... 
 		<hr>
