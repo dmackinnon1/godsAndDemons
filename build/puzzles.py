@@ -240,6 +240,54 @@ sameTypeStatement ={"statement":"We are the same type", "type":"same", "pairs":s
 aStatements.append(sameTypeStatement)
 bStatements.append(sameTypeStatement)
 
+# On day 2, Craig intuits that the two inahbitants are from the same dimension
+bothImmortal = fromLists(immortals,immortals)
+bothMortal = fromLists(mortals, mortals)
+fromSameDimension = union(bothImmortal, bothMortal)
+
+def buildDay2Puzzles():
+    counter = 1
+    puzzles = []
+    for a in aStatements:
+        for b in bStatements:
+            s = solutions(a["pairs"], b["pairs"])
+            s = intersect(s, fromSameDimension)
+            if (len(s) == 1):
+                puzzle = {}
+                puzzle['id'] = str(counter)
+                counter = counter + 1
+                puzzle['statement_A'] =  a["statement"]
+                puzzle['statement_B'] =  b["statement"]
+                puzzle['A'] =  s[0][0]
+                puzzle['B'] =  s[0][1]                
+                puzzle['solution'] = "The solution is that A is a "+ s[0][0] + " and B is a " + s[0][1]
+                puzzles.append(puzzle)
+    return puzzles
+
+# On day 3, Craig intuits that the two inahbitants are on the same side
+bothLiars = fromLists(liars,liars)
+bothTruthers = fromLists(truthfuls, truthfuls)
+fromSameSide = union(bothLiars, bothTruthers)
+
+def buildDay3Puzzles():
+    counter = 1
+    puzzles = []
+    for a in aStatements:
+        for b in bStatements:
+            s = solutions(a["pairs"], b["pairs"])
+            s = intersect(s, fromSameSide)
+            if (len(s) == 1):
+                puzzle = {}
+                puzzle['id'] = str(counter)
+                counter = counter + 1
+                puzzle['statement_A'] =  a["statement"]
+                puzzle['statement_B'] =  b["statement"]
+                puzzle['A'] =  s[0][0]
+                puzzle['B'] =  s[0][1]                
+                puzzle['solution'] = "The solution is that A is a "+ s[0][0] + " and B is a " + s[0][1]
+                puzzles.append(puzzle)
+    return puzzles
+
 
 def jsonForPuzzle(p):
     json = '{"statement_A":"' + p['statement_A'] + '",' 
@@ -251,22 +299,52 @@ def jsonForPuzzle(p):
     json += "}"
     return json
 
-puzzles = buildPuzzles()
+day1Puzzles = buildPuzzles()
+day2Puzzles = buildDay2Puzzles()
+day3Puzzles = buildDay3Puzzles()
 # write out the puzzles
 result = "["
 first = True
-for p in puzzles:
+for p in day1Puzzles:
     if not first:
         result += ", \n"
     else:
         first = False
     result += jsonForPuzzle(p)
-result += "]"
-print("There were " + str(len(puzzles)) + " puzzles generated")
-
-f = open("../data/godsAndDemons.json","w")
+result += ']'
+f = open("../data/godsAndDemonsDay1.json","w")
 f.write( result )
 f.close()
+print("There were " + str(len(day1Puzzles)) + " day 1 puzzles generated")
+
+result = "["
+first = True
+for p in day2Puzzles:
+    if not first:
+        result += ", \n"
+    else:
+        first = False
+    result += jsonForPuzzle(p)
+result += ']'
+f = open("../data/godsAndDemonsDay2.json","w")
+f.write( result )
+f.close()
+print("There were " + str(len(day2Puzzles)) + " day 2 puzzles generated")
+
+result = "["
+first = True
+for p in day3Puzzles:
+    if not first:
+        result += ", \n"
+    else:
+        first = False
+    result += jsonForPuzzle(p)
+result += ']'
+f = open("../data/godsAndDemonsDay3.json","w")
+f.write( result )
+f.close()
+print("There were " + str(len(day2Puzzles)) + " day 3 puzzles generated")
+
 
 #runAllStatements()
   
